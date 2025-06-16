@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Groups - Blood Bank Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+                <ul id="navMenu">
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/blood-groups-nodejs.html" class="active">Blood Groups</a></li>
+                    <li><a href="/hospitals.html">Hospitals</a></li>
+                    <li><a href="/patients.html">Patients</a></li>
+                    <li><a href="/requests.html">Requests</a></li>
+                    <li><a href="/donors.html">Donors</a></li>
+                    <li><a href="/blood-units.html">Blood Units</a></li>
+                    <li><a href="/donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Blood Groups Management</h2>
+                <button class="btn" onclick="toggleForm()">+ Add Blood Group</button>
+            </div>
+
+            <!-- Connection Status -->
+            <div id="connectionStatus" class="connection-status" style="display: none;">
+                <p id="statusMessage"></p>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div class="form-container" id="bloodGroupForm" style="display: none;">
+                <h3 id="formTitle">Add New Blood Group</h3>
+                <form id="bloodGroupFormElement">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bloodGroupId">Blood Group ID</label>
+                            <input type="text" id="bloodGroupId" placeholder="e.g., BG001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodType">Blood Type</label>
+                            <select id="bloodType" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodQuantity">Blood Quantity (units)</label>
+                            <input type="number" id="bloodQuantity" min="0" required>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn" id="submitBtn">Save Blood Group</button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search blood groups..." onkeyup="searchTable()">
+                <select class="filter-select" id="bloodTypeFilter" onchange="filterTable()">
+                    <option value="">All Blood Types</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+                <select class="filter-select" id="quantityFilter" onchange="filterTable()">
+                    <option value="">All Quantities</option>
+                    <option value="low">Low Stock (< 100)</option>
+                    <option value="medium">Medium Stock (100-300)</option>
+                    <option value="high">High Stock (> 300)</option>
+                </select>
+            </div>
+
+            <!-- Blood Groups Table -->
+            <div class="table-container">
+                <table class="table" id="bloodGroupsTable">
+                    <thead>
+                        <tr>
+                            <th>Blood Group ID</th>
+                            <th>Blood Type</th>
+                            <th>Available Quantity</th>
+                            <th>Stock Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bloodGroupsTableBody">
+                        <!-- Data will be loaded from Node.js API -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading" style="text-align: center; padding: 2rem; display: none;">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        // API Configuration - Can switch between Node.js and PHP
+        const API_BASE_URL = window.location.origin + '/api-blood-groups.php';
+        let isEditMode = false;
+        let currentEditId = null;
+
+        // Load blood groups when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerConnection();
+            loadBloodGroups();
+        });
+
+        // Check if server is running
+        async function checkServerConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const result = await response.json();
+                
+                if (result.status === 'OK') {
+                    showConnectionStatus('✅ Connected to Node.js server', 'success');
+                } else {
+                    showConnectionStatus('⚠️ Server connection issue', 'warning');
+                }
+            } catch (error) {
+                showConnectionStatus('❌ Cannot connect to server. Make sure Node.js server is running on port 3000', 'error');
+                console.error('Server connection error:', error);
+            }
+        }
+
+        // Show connection status
+        function showConnectionStatus(message, type) {
+            const statusDiv = document.getElementById('connectionStatus');
+            const messageP = document.getElementById('statusMessage');
+            
+            statusDiv.className = `connection-status ${type}`;
+            messageP.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            // Hide after 5 seconds if success
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Load blood groups from Node.js API
+        async function loadBloodGroups() {
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/blood-groups`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayBloodGroups(result.data);
+                    showMessage(`Loaded ${result.count} blood groups successfully`, 'success');
+                } else {
+                    showMessage('Error loading blood groups: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error connecting to server: ' + error.message, 'error');
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display blood groups in table
+        function displayBloodGroups(bloodGroups) {
+            const tbody = document.getElementById('bloodGroupsTableBody');
+            tbody.innerHTML = '';
+
+            if (bloodGroups.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No blood groups found</td></tr>';
+                return;
+            }
+
+            bloodGroups.forEach(group => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${group.id}</td>
+                    <td><span class="blood-type-badge ${getBloodTypeClass(group.blood_type)}">${group.blood_type}</span></td>
+                    <td>${group.quantity} units</td>
+                    <td><span class="status ${group.stock_status.class}">${group.stock_status.text}</span></td>
+                    <td>${group.last_updated || new Date().toISOString().split('T')[0]}</td>
+                    <td>
+                        <button class="btn btn-small" onclick="editBloodGroup('${group.id}', '${group.blood_type}', ${group.quantity})">Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="deleteBloodGroup('${group.id}', '${group.blood_type}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Form submission
+        document.getElementById('bloodGroupFormElement').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: document.getElementById('bloodGroupId').value,
+                blood_type: document.getElementById('bloodType').value,
+                quantity: parseInt(document.getElementById('bloodQuantity').value)
+            };
+
+            try {
+                showLoading(true);
+                let response;
+                
+                if (isEditMode) {
+                    // Update existing blood group
+                    response = await fetch(`${API_BASE_URL}/blood-groups/${currentEditId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                } else {
+                    // Create new blood group
+                    response = await fetch(`${API_BASE_URL}/blood-groups`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    cancelForm();
+                    loadBloodGroups(); // Reload data
+                } else {
+                    showMessage('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error saving blood group: ' + error.message, 'error');
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Edit blood group
+        function editBloodGroup(id, bloodType, quantity) {
+            isEditMode = true;
+            currentEditId = id;
+            
+            document.getElementById('formTitle').textContent = 'Edit Blood Group';
+            document.getElementById('bloodGroupId').value = id;
+            document.getElementById('bloodGroupId').disabled = true;
+            document.getElementById('bloodType').value = bloodType;
+            document.getElementById('bloodQuantity').value = quantity;
+            document.getElementById('submitBtn').textContent = 'Update Blood Group';
+            
+            document.getElementById('bloodGroupForm').style.display = 'block';
+        }
+
+        // Delete blood group
+        async function deleteBloodGroup(id, bloodType) {
+            if (!confirm(`Are you sure you want to delete blood group ${bloodType} (${id})?`)) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE_URL}/blood-groups/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    loadBloodGroups(); // Reload data
+                } else {
+                    showMessage('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting blood group: ' + error.message, 'error');
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Toggle form visibility
+        function toggleForm() {
+            const form = document.getElementById('bloodGroupForm');
+            if (form.style.display === 'none') {
+                isEditMode = false;
+                currentEditId = null;
+                document.getElementById('formTitle').textContent = 'Add New Blood Group';
+                document.getElementById('bloodGroupId').disabled = false;
+                document.getElementById('submitBtn').textContent = 'Save Blood Group';
+                document.getElementById('bloodGroupFormElement').reset();
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        // Cancel form
+        function cancelForm() {
+            document.getElementById('bloodGroupForm').style.display = 'none';
+            document.getElementById('bloodGroupFormElement').reset();
+            isEditMode = false;
+            currentEditId = null;
+        }
+
+        // Show/hide loading indicator
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Show success/error messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1001;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (document.body.contains(messageDiv)) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+
+        // Helper function to get blood type CSS class
+        function getBloodTypeClass(bloodType) {
+            const classMap = {
+                'A+': 'a-positive', 'A-': 'a-negative',
+                'B+': 'b-positive', 'B-': 'b-negative',
+                'AB+': 'ab-positive', 'AB-': 'ab-negative',
+                'O+': 'o-positive', 'O-': 'o-negative'
+            };
+            return classMap[bloodType] || '';
+        }
+
+        // Search and filter functions
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('bloodGroupsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterTable() {
+            const bloodTypeFilter = document.getElementById('bloodTypeFilter').value;
+            const quantityFilter = document.getElementById('quantityFilter').value;
+            const table = document.getElementById('bloodGroupsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let showRow = true;
+
+                if (bloodTypeFilter && cells[1]) {
+                    const bloodType = cells[1].textContent.trim();
+                    if (!bloodType.includes(bloodTypeFilter)) {
+                        showRow = false;
+                    }
+                }
+
+                if (quantityFilter && cells[2] && showRow) {
+                    const quantityText = cells[2].textContent;
+                    const quantity = parseInt(quantityText.match(/\d+/)[0]);
+                    
+                    if (quantityFilter === 'low' && quantity >= 100) showRow = false;
+                    if (quantityFilter === 'medium' && (quantity < 100 || quantity > 300)) showRow = false;
+                    if (quantityFilter === 'high' && quantity <= 300) showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('mobile-open');
+        }
+    </script>
+
+    <style>
+        .connection-status {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .connection-status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #059669;
+        }
+        .connection-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+        .connection-status.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+    </style>
+</body>
+</html>

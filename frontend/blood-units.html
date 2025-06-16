@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Units - Blood Bank Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="blood-groups.html">Blood Groups</a></li>
+                    <li><a href="hospitals.html">Hospitals</a></li>
+                    <li><a href="patients.html">Patients</a></li>
+                    <li><a href="requests.html">Requests</a></li>
+                    <li><a href="donors.html">Donors</a></li>
+                    <li><a href="blood-units.html" class="active">Blood Units</a></li>
+                    <li><a href="donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Blood Unit Inventory</h2>
+                <button class="btn" onclick="toggleForm()">+ Add Blood Unit</button>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div class="form-container" id="bloodUnitForm" style="display: none;">
+                <h3>Add New Blood Unit</h3>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bloodUnitId">Blood Unit ID</label>
+                            <input type="text" id="bloodUnitId" placeholder="e.g., BU001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="donorId">Donor</label>
+                            <select id="donorId" required>
+                                <option value="">Select Donor</option>
+                                <option value="D001">Robert Johnson (O+)</option>
+                                <option value="D002">Jennifer Lee (A-)</option>
+                                <option value="D003">Mark Thompson (B+)</option>
+                                <option value="D004">Amanda Garcia (AB-)</option>
+                                <option value="D005">Christopher Martinez (O-)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodGroupId">Blood Group</label>
+                            <select id="bloodGroupId" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="BG001">A+</option>
+                                <option value="BG002">A-</option>
+                                <option value="BG003">B+</option>
+                                <option value="BG004">B-</option>
+                                <option value="BG005">AB+</option>
+                                <option value="BG006">AB-</option>
+                                <option value="BG007">O+</option>
+                                <option value="BG008">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="volume">Volume (ml)</label>
+                            <input type="number" id="volume" min="1" placeholder="Enter volume" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="collectionDate">Collection Date</label>
+                            <input type="date" id="collectionDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="date" id="expiryDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" required>
+                                <option value="available">Available</option>
+                                <option value="reserved">Reserved</option>
+                                <option value="used">Used</option>
+                                <option value="expired">Expired</option>
+                                <option value="quarantine">Quarantine</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="storageLocation">Storage Location</label>
+                            <input type="text" id="storageLocation" placeholder="e.g., Freezer A-1" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Enter any additional notes"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn">Save Blood Unit</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search blood units by ID, donor, or location..." onkeyup="searchTable()">
+                <select class="filter-select" id="bloodGroupFilter" onchange="filterTable()">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+                <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="reserved">Reserved</option>
+                    <option value="used">Used</option>
+                    <option value="expired">Expired</option>
+                    <option value="quarantine">Quarantine</option>
+                </select>
+                <select class="filter-select" id="expiryFilter" onchange="filterTable()">
+                    <option value="">All Expiry</option>
+                    <option value="expiring_soon">Expiring Soon (< 7 days)</option>
+                    <option value="fresh">Fresh (> 30 days)</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+
+            <!-- Blood Units Table -->
+            <div class="table-container">
+                <table class="table" id="bloodUnitsTable">
+                    <thead>
+                        <tr>
+                            <th>Unit ID</th>
+                            <th>Donor</th>
+                            <th>Blood Group</th>
+                            <th>Volume</th>
+                            <th>Collection Date</th>
+                            <th>Expiry Date</th>
+                            <th>Storage Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BU001</td>
+                            <td>Robert Johnson</td>
+                            <td><span class="blood-type-badge o-positive">O+</span></td>
+                            <td>450 ml</td>
+                            <td>2024-06-10</td>
+                            <td>2024-07-10</td>
+                            <td>Freezer A-1</td>
+                            <td><span class="status active">Available</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editRecord(this.closest('tr').cells[0].textContent)">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord(this.closest('tr').cells[0].textContent)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BU002</td>
+                            <td>Jennifer Lee</td>
+                            <td><span class="blood-type-badge a-negative">A-</span></td>
+                            <td>450 ml</td>
+                            <td>2024-06-08</td>
+                            <td>2024-07-08</td>
+                            <td>Freezer B-2</td>
+                            <td><span class="status pending">Reserved</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editRecord('BU002')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('BU002')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BU003</td>
+                            <td>Mark Thompson</td>
+                            <td><span class="blood-type-badge b-positive">B+</span></td>
+                            <td>450 ml</td>
+                            <td>2024-06-05</td>
+                            <td>2024-07-05</td>
+                            <td>Freezer A-3</td>
+                            <td><span class="status active">Available</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editRecord('BU003')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('BU003')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BU004</td>
+                            <td>Amanda Garcia</td>
+                            <td><span class="blood-type-badge ab-negative">AB-</span></td>
+                            <td>450 ml</td>
+                            <td>2024-05-20</td>
+                            <td>2024-06-20</td>
+                            <td>Freezer C-1</td>
+                            <td><span class="status rejected">Expired</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editRecord('BU004')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('BU004')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BU005</td>
+                            <td>Christopher Martinez</td>
+                            <td><span class="blood-type-badge o-negative">O-</span></td>
+                            <td>450 ml</td>
+                            <td>2024-06-12</td>
+                            <td>2024-07-12</td>
+                            <td>Freezer A-2</td>
+                            <td><span class="status active">Available</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="editRecord('BU005')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('BU005')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BU006</td>
+                            <td>Robert Johnson</td>
+                            <td><span class="blood-type-badge o-positive">O+</span></td>
+                            <td>450 ml</td>
+                            <td>2024-06-01</td>
+                            <td>2024-07-01</td>
+                            <td>Freezer B-1</td>
+                            <td><span class="status approved">Used</span></td>
+                            <td>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('BU006')">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('bloodUnitForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('bloodUnitsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude actions column
+                    if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterTable() {
+            const bloodGroupFilter = document.getElementById('bloodGroupFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const expiryFilter = document.getElementById('expiryFilter').value;
+            const table = document.getElementById('bloodUnitsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let showRow = true;
+
+                // Blood group filter
+                if (bloodGroupFilter && cells[2] && showRow) {
+                    const bloodGroup = cells[2].textContent.trim();
+                    if (!bloodGroup.includes(bloodGroupFilter)) {
+                        showRow = false;
+                    }
+                }
+
+                // Status filter
+                if (statusFilter && cells[7] && showRow) {
+                    const status = cells[7].textContent.toLowerCase();
+                    if (!status.includes(statusFilter.toLowerCase())) {
+                        showRow = false;
+                    }
+                }
+
+                // Expiry filter
+                if (expiryFilter && cells[5] && showRow) {
+                    const expiryDate = new Date(cells[5].textContent);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+                    if (expiryFilter === 'expiring_soon' && daysDiff > 7) showRow = false;
+                    if (expiryFilter === 'fresh' && daysDiff <= 30) showRow = false;
+                    if (expiryFilter === 'expired' && daysDiff > 0) showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+
+        // Reset filters when search is cleared
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable(); // Reapply filters
+            }
+        });
+
+        // Edit Record
+        function editRecord(id) {
+            if (confirm(`Edit blood unit: ${id}?\n\nNote: This is a demo. In a real application, this would open an edit form.`)) {
+                showMessage(`Edit functionality for ${id} would be implemented here.`, 'success');
+            }
+        }
+
+        // Delete Record
+        function deleteRecord(id) {
+            if (confirm(`Are you sure you want to delete blood unit: ${id}?`)) {
+                const table = document.getElementById('bloodUnitsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === id) {
+                        rows[i].remove();
+                        break;
+                    }
+                }
+
+                showMessage(`Blood unit ${id} deleted successfully!`, 'success');
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 1rem 2rem;
+                border-radius: 5px; color: white; font-weight: bold; z-index: 1001;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+            `;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                if (document.body.contains(messageDiv)) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

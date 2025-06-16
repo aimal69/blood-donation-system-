@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Requests - Blood Bank Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="blood-groups.html">Blood Groups</a></li>
+                    <li><a href="hospitals.html">Hospitals</a></li>
+                    <li><a href="patients.html">Patients</a></li>
+                    <li><a href="requests.html" class="active">Requests</a></li>
+                    <li><a href="donors.html">Donors</a></li>
+                    <li><a href="blood-units.html">Blood Units</a></li>
+                    <li><a href="donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Blood Request Management</h2>
+                <button class="btn" onclick="toggleForm()">+ New Request</button>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div class="form-container" id="requestForm" style="display: none;">
+                <h3>Create New Blood Request</h3>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="requestId">Request ID</label>
+                            <input type="text" id="requestId" placeholder="e.g., REQ001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospitalId">Hospital</label>
+                            <select id="hospitalId" required>
+                                <option value="">Select Hospital</option>
+                                <option value="H001">City General Hospital</option>
+                                <option value="H002">St. Mary's Medical Center</option>
+                                <option value="H003">Memorial Hospital</option>
+                                <option value="H004">University Medical Center</option>
+                                <option value="H005">Children's Hospital</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientId">Patient</label>
+                            <select id="patientId" required>
+                                <option value="">Select Patient</option>
+                                <option value="P001">John Smith (A+)</option>
+                                <option value="P002">Sarah Johnson (O-)</option>
+                                <option value="P003">Michael Brown (B+)</option>
+                                <option value="P004">Emily Davis (AB+)</option>
+                                <option value="P005">David Wilson (O+)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodGroupId">Blood Group Needed</label>
+                            <select id="bloodGroupId" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="BG001">A+</option>
+                                <option value="BG002">A-</option>
+                                <option value="BG003">B+</option>
+                                <option value="BG004">B-</option>
+                                <option value="BG005">AB+</option>
+                                <option value="BG006">AB-</option>
+                                <option value="BG007">O+</option>
+                                <option value="BG008">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity (units)</label>
+                            <input type="number" id="quantity" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="requestDate">Request Date</label>
+                            <input type="date" id="requestDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="urgency">Urgency Level</label>
+                            <select id="urgency" required>
+                                <option value="">Select Urgency</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="emergency">Emergency</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="fulfilled">Fulfilled</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" placeholder="Enter any additional information"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn">Save Request</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search requests by ID, hospital, or patient..." onkeyup="searchTable()">
+                <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="fulfilled">Fulfilled</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <select class="filter-select" id="urgencyFilter" onchange="filterTable()">
+                    <option value="">All Urgency</option>
+                    <option value="emergency">Emergency</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+                <select class="filter-select" id="bloodGroupFilter" onchange="filterTable()">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <!-- Requests Table -->
+            <div class="table-container">
+                <table class="table" id="requestsTable">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Hospital</th>
+                            <th>Patient</th>
+                            <th>Blood Group</th>
+                            <th>Quantity</th>
+                            <th>Request Date</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>REQ001</td>
+                            <td>City General Hospital</td>
+                            <td>John Smith</td>
+                            <td><span class="blood-type-badge a-positive">A+</span></td>
+                            <td>2 units</td>
+                            <td>2024-06-15</td>
+                            <td><span class="status rejected">Emergency</span></td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="approveRequest('REQ001')">Approve</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('REQ001', 'REQ001')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>REQ002</td>
+                            <td>St. Mary's Medical Center</td>
+                            <td>Sarah Johnson</td>
+                            <td><span class="blood-type-badge o-negative">O-</span></td>
+                            <td>1 unit</td>
+                            <td>2024-06-14</td>
+                            <td><span class="status pending">High</span></td>
+                            <td><span class="status approved">Approved</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="fulfillRequest('REQ002')">Fulfill</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('REQ002', 'REQ002')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>REQ003</td>
+                            <td>Memorial Hospital</td>
+                            <td>Michael Brown</td>
+                            <td><span class="blood-type-badge b-positive">B+</span></td>
+                            <td>3 units</td>
+                            <td>2024-06-13</td>
+                            <td><span class="status active">Medium</span></td>
+                            <td><span class="status approved">Fulfilled</span></td>
+                            <td>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('REQ003', 'REQ003')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>REQ004</td>
+                            <td>University Medical Center</td>
+                            <td>Emily Davis</td>
+                            <td><span class="blood-type-badge ab-positive">AB+</span></td>
+                            <td>1 unit</td>
+                            <td>2024-06-12</td>
+                            <td><span class="status active">Low</span></td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>
+                                <button class="btn btn-small" onclick="approveRequest('REQ004')">Approve</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteRecord('REQ004', 'REQ004')">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('requestForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('requestsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude actions column
+                    if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterTable() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const urgencyFilter = document.getElementById('urgencyFilter').value;
+            const bloodGroupFilter = document.getElementById('bloodGroupFilter').value;
+            const table = document.getElementById('requestsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let showRow = true;
+
+                // Status filter
+                if (statusFilter && cells[7] && showRow) {
+                    const status = cells[7].textContent.toLowerCase();
+                    if (!status.includes(statusFilter.toLowerCase())) {
+                        showRow = false;
+                    }
+                }
+
+                // Urgency filter
+                if (urgencyFilter && cells[6] && showRow) {
+                    const urgency = cells[6].textContent.toLowerCase();
+                    if (!urgency.includes(urgencyFilter.toLowerCase())) {
+                        showRow = false;
+                    }
+                }
+
+                // Blood group filter
+                if (bloodGroupFilter && cells[3] && showRow) {
+                    const bloodGroup = cells[3].textContent.trim();
+                    if (!bloodGroup.includes(bloodGroupFilter)) {
+                        showRow = false;
+                    }
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+
+        // Reset filters when search is cleared
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable(); // Reapply filters
+            }
+        });
+
+        // Approve Request
+        function approveRequest(id) {
+            if (confirm(`Approve request ${id}?`)) {
+                // Find and update the status
+                const table = document.getElementById('requestsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === id) {
+                        cells[7].innerHTML = '<span class="status approved">Approved</span>';
+                        // Change button to Fulfill
+                        const actionCell = cells[8];
+                        actionCell.innerHTML = `
+                            <button class="btn btn-small" onclick="fulfillRequest('${id}')">Fulfill</button>
+                            <button class="btn btn-small btn-secondary" onclick="deleteRecord('${id}', '${id}')">Delete</button>
+                        `;
+                        break;
+                    }
+                }
+
+                showMessage(`Request ${id} approved successfully!`, 'success');
+            }
+        }
+
+        // Fulfill Request
+        function fulfillRequest(id) {
+            if (confirm(`Mark request ${id} as fulfilled?`)) {
+                // Find and update the status
+                const table = document.getElementById('requestsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === id) {
+                        cells[7].innerHTML = '<span class="status approved">Fulfilled</span>';
+                        // Change button to just Delete
+                        const actionCell = cells[8];
+                        actionCell.innerHTML = `
+                            <button class="btn btn-small btn-secondary" onclick="deleteRecord('${id}', '${id}')">Delete</button>
+                        `;
+                        break;
+                    }
+                }
+
+                showMessage(`Request ${id} fulfilled successfully!`, 'success');
+            }
+        }
+
+        // Delete Record
+        function deleteRecord(id, name) {
+            if (confirm(`Are you sure you want to delete request: ${name}?`)) {
+                // Find and remove the row
+                const table = document.getElementById('requestsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === id) {
+                        rows[i].remove();
+                        break;
+                    }
+                }
+
+                showMessage(`Request ${name} deleted successfully!`, 'success');
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1001;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                if (document.body.contains(messageDiv)) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

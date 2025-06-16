@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+                <ul id="navMenu">
+                    <li><a href="index.html" class="active">Dashboard</a></li>
+                    <li><a href="blood-groups.html">Blood Groups</a></li>
+                    <li><a href="hospitals.html">Hospitals</a></li>
+                    <li><a href="patients.html">Patients</a></li>
+                    <li><a href="requests.html">Requests</a></li>
+                    <li><a href="donors.html">Donors</a></li>
+                    <li><a href="blood-units.html">Blood Units</a></li>
+                    <li><a href="donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <section class="dashboard">
+                <h2>Dashboard Overview</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏥</div>
+                        <div class="stat-info">
+                            <h3>6</h3>
+                            <p>Registered Hospitals</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3>6</h3>
+                            <p>Registered Patients</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🫀</div>
+                        <div class="stat-info">
+                            <h3>6</h3>
+                            <p>Active Donors</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🩸</div>
+                        <div class="stat-info">
+                            <h3>1,225</h3>
+                            <p>Blood Units Available</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <h3>2</h3>
+                            <p>Pending Requests</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💉</div>
+                        <div class="stat-info">
+                            <h3>6</h3>
+                            <p>Total Donations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-sections">
+                    <div class="section">
+                        <h3>Blood Inventory Status</h3>
+                        <div class="blood-inventory">
+                            <div class="blood-type">
+                                <span class="type">A+</span>
+                                <div class="quantity">
+                                    <div class="bar">
+                                        <div class="fill" style="width: 65%"></div>
+                                    </div>
+                                    <span>450 units</span>
+                                </div>
+                            </div>
+                            <div class="blood-type">
+                                <span class="type">O+</span>
+                                <div class="quantity">
+                                    <div class="bar">
+                                        <div class="fill" style="width: 95%"></div>
+                                    </div>
+                                    <span>680 units</span>
+                                </div>
+                            </div>
+                            <div class="blood-type">
+                                <span class="type">B-</span>
+                                <div class="quantity">
+                                    <div class="bar">
+                                        <div class="fill" style="width: 15%"></div>
+                                    </div>
+                                    <span>95 units</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Recent Activities</h3>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <span class="activity-time">2 hours ago</span>
+                                <span class="activity-text">New blood donation received from John Doe (O+)</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-time">4 hours ago</span>
+                                <span class="activity-text">Blood request fulfilled for City Hospital (A-)</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-time">6 hours ago</span>
+                                <span class="activity-text">New donor registered: Sarah Smith</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-time">1 day ago</span>
+                                <span class="activity-text">Emergency request from General Hospital (AB+)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('mobile-open');
+        }
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navMenu').classList.remove('mobile-open');
+            });
+        });
+    </script>
+</body>
+</html>

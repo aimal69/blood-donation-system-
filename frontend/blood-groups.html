@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Groups - Blood Bank Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="blood-groups.html" class="active">Blood Groups</a></li>
+                    <li><a href="hospitals.html">Hospitals</a></li>
+                    <li><a href="patients.html">Patients</a></li>
+                    <li><a href="requests.html">Requests</a></li>
+                    <li><a href="donors.html">Donors</a></li>
+                    <li><a href="blood-units.html">Blood Units</a></li>
+                    <li><a href="donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Blood Groups Management</h2>
+                <button class="btn" onclick="toggleForm()">+ Add Blood Group</button>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div class="form-container" id="bloodGroupForm" style="display: none;">
+                <h3>Add New Blood Group</h3>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bloodType">Blood Type</label>
+                            <select id="bloodType" required>
+                                <option value="">Select Blood Type</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bloodQuantity">Blood Quantity (units)</label>
+                            <input type="number" id="bloodQuantity" min="0" required>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn">Save Blood Group</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search blood groups..." onkeyup="searchTable()">
+                <select class="filter-select" id="bloodTypeFilter" onchange="filterTable()">
+                    <option value="">All Blood Types</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+                <select class="filter-select" id="quantityFilter" onchange="filterTable()">
+                    <option value="">All Quantities</option>
+                    <option value="low">Low Stock (< 100)</option>
+                    <option value="medium">Medium Stock (100-300)</option>
+                    <option value="high">High Stock (> 300)</option>
+                </select>
+            </div>
+
+            <!-- Blood Groups Table -->
+            <div class="table-container">
+                <table class="table" id="bloodGroupsTable">
+                    <thead>
+                        <tr>
+                            <th>Blood Group ID</th>
+                            <th>Blood Type</th>
+                            <th>Available Quantity</th>
+                            <th>Stock Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BG001</td>
+                            <td><span class="blood-type-badge a-positive">A+</span></td>
+                            <td>450 units</td>
+                            <td><span class="status active">Good Stock</span></td>
+                            <td>2024-06-15</td>
+                            <td>
+                                <button class="btn btn-small" onclick="editBloodGroup('BG001', 'A+', '450')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteBloodGroup('BG001', 'A+')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BG002</td>
+                            <td><span class="blood-type-badge o-positive">O+</span></td>
+                            <td>680 units</td>
+                            <td><span class="status active">Excellent Stock</span></td>
+                            <td>2024-06-15</td>
+                            <td>
+                                <button class="btn btn-small" onclick="editBloodGroup('BG002', 'O+', '680')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteBloodGroup('BG002', 'O+')">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BG003</td>
+                            <td><span class="blood-type-badge b-negative">B-</span></td>
+                            <td>95 units</td>
+                            <td><span class="status rejected">Critical Low</span></td>
+                            <td>2024-06-14</td>
+                            <td>
+                                <button class="btn btn-small" onclick="editBloodGroup('BG003', 'B-', '95')">Edit</button>
+                                <button class="btn btn-small btn-secondary" onclick="deleteBloodGroup('BG003', 'B-')">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Blood Group</h3>
+                <button class="close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editBloodType">Blood Type</label>
+                        <select id="editBloodType" required>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBloodQuantity">Blood Quantity (units)</label>
+                        <input type="number" id="editBloodQuantity" min="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Update Blood Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content confirm-dialog">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button class="close" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <div class="icon">🗑️</div>
+            <p>Are you sure you want to delete this blood group?</p>
+            <p><strong id="deleteItemName"></strong></p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('bloodGroupForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('bloodGroupsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude actions column
+                    if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterTable() {
+            const bloodTypeFilter = document.getElementById('bloodTypeFilter').value;
+            const quantityFilter = document.getElementById('quantityFilter').value;
+            const table = document.getElementById('bloodGroupsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let showRow = true;
+
+                // Blood type filter
+                if (bloodTypeFilter && cells[1]) {
+                    const bloodType = cells[1].textContent.trim();
+                    if (!bloodType.includes(bloodTypeFilter)) {
+                        showRow = false;
+                    }
+                }
+
+                // Quantity filter
+                if (quantityFilter && cells[2] && showRow) {
+                    const quantityText = cells[2].textContent;
+                    const quantity = parseInt(quantityText.match(/\d+/)[0]);
+
+                    if (quantityFilter === 'low' && quantity >= 100) showRow = false;
+                    if (quantityFilter === 'medium' && (quantity < 100 || quantity > 300)) showRow = false;
+                    if (quantityFilter === 'high' && quantity <= 300) showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+
+        // Reset filters when search is cleared
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable(); // Reapply filters
+            }
+        });
+
+        // Global variables for edit/delete operations
+        let currentEditId = null;
+        let currentDeleteId = null;
+
+        // Edit Blood Group
+        function editBloodGroup(id, bloodType, quantity) {
+            currentEditId = id;
+            document.getElementById('editBloodType').value = bloodType;
+            document.getElementById('editBloodQuantity').value = quantity;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Delete Blood Group
+        function deleteBloodGroup(id, bloodType) {
+            currentDeleteId = id;
+            document.getElementById('deleteItemName').textContent = `Blood Group: ${bloodType}`;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Confirm Delete
+        function confirmDelete() {
+            if (currentDeleteId) {
+                // Find and remove the row
+                const table = document.getElementById('bloodGroupsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === currentDeleteId) {
+                        rows[i].remove();
+                        break;
+                    }
+                }
+
+                showMessage('Blood group deleted successfully!', 'success');
+                closeModal('deleteModal');
+                currentDeleteId = null;
+            }
+        }
+
+        // Handle Edit Form Submission
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (currentEditId) {
+                const newBloodType = document.getElementById('editBloodType').value;
+                const newQuantity = document.getElementById('editBloodQuantity').value;
+
+                // Find and update the row
+                const table = document.getElementById('bloodGroupsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === currentEditId) {
+                        // Update blood type
+                        cells[1].innerHTML = `<span class="blood-type-badge ${getBloodTypeClass(newBloodType)}">${newBloodType}</span>`;
+
+                        // Update quantity
+                        cells[2].textContent = `${newQuantity} units`;
+
+                        // Update status based on quantity
+                        const status = getStockStatus(parseInt(newQuantity));
+                        cells[3].innerHTML = `<span class="status ${status.class}">${status.text}</span>`;
+
+                        // Update last updated date
+                        cells[4].textContent = new Date().toISOString().split('T')[0];
+
+                        // Update edit button onclick
+                        const editBtn = cells[5].querySelector('.btn:first-child');
+                        editBtn.setAttribute('onclick', `editBloodGroup('${currentEditId}', '${newBloodType}', '${newQuantity}')`);
+
+                        break;
+                    }
+                }
+
+                showMessage('Blood group updated successfully!', 'success');
+                closeModal('editModal');
+                currentEditId = null;
+            }
+        });
+
+        // Helper function to get blood type CSS class
+        function getBloodTypeClass(bloodType) {
+            const classMap = {
+                'A+': 'a-positive',
+                'A-': 'a-negative',
+                'B+': 'b-positive',
+                'B-': 'b-negative',
+                'AB+': 'ab-positive',
+                'AB-': 'ab-negative',
+                'O+': 'o-positive',
+                'O-': 'o-negative'
+            };
+            return classMap[bloodType] || '';
+        }
+
+        // Helper function to get stock status
+        function getStockStatus(quantity) {
+            if (quantity < 100) {
+                return { class: 'rejected', text: 'Critical Low' };
+            } else if (quantity <= 300) {
+                return { class: 'pending', text: 'Low Stock' };
+            } else if (quantity <= 500) {
+                return { class: 'active', text: 'Good Stock' };
+            } else {
+                return { class: 'active', text: 'Excellent Stock' };
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1001;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                if (document.body.contains(messageDiv)) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const deleteModal = document.getElementById('deleteModal');
+
+            if (event.target === editModal) {
+                closeModal('editModal');
+            }
+            if (event.target === deleteModal) {
+                closeModal('deleteModal');
+            }
+        }
+    </script>
+</body>
+</html>
