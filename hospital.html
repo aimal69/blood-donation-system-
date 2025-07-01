@@ -1,1 +1,471 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitals - Blood Bank Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🩸 Blood Bank Management</h1>
+            </div>
+            <nav class="nav">
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+                <ul id="navMenu">
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li><a href="blood-groups.html">Blood Groups</a></li>
+                    <li><a href="hospitals.html" class="active">Hospitals</a></li>
+                    <li><a href="patients.html">Patients</a></li>
+                    <li><a href="requests.html">Requests</a></li>
+                    <li><a href="donors.html">Donors</a></li>
+                    <li><a href="blood-units.html">Blood Units</a></li>
+                    <li><a href="donations.html">Donations</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h2>Hospital Management</h2>
+                <button class="btn" onclick="toggleForm()">+ Add Hospital</button>
+            </div>
+
+            <!-- Add/Edit Form -->
+            <div class="form-container" id="hospitalForm" style="display: none;">
+                <h3>Add New Hospital</h3>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="hospitalId">Hospital ID</label>
+                            <input type="text" id="hospitalId" placeholder="e.g., H001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospitalName">Hospital Name</label>
+                            <input type="text" id="hospitalName" placeholder="Enter hospital name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospitalPhone">Phone Number</label>
+                            <input type="tel" id="hospitalPhone" placeholder="Enter phone number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospitalEmail">Email Address</label>
+                            <input type="email" id="hospitalEmail" placeholder="Enter email address">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hospitalAddress">Address</label>
+                        <textarea id="hospitalAddress" placeholder="Enter complete address" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn">Save Hospital</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search hospitals by name, ID, or location..." onkeyup="searchTable()">
+                <select class="filter-select" id="typeFilter" onchange="filterTable()">
+                    <option value="">All Hospitals</option>
+                    <option value="government">Government</option>
+                    <option value="private">Private</option>
+                    <option value="specialty">Specialty</option>
+                </select>
+                <select class="filter-select" id="cityFilter" onchange="filterTable()">
+                    <option value="">All Cities</option>
+                    <option value="new-york">New York</option>
+                    <option value="los-angeles">Los Angeles</option>
+                    <option value="chicago">Chicago</option>
+                    <option value="houston">Houston</option>
+                </select>
+            </div>
+
+            <!-- Hospitals Table -->
+            <div class="table-container">
+                <table class="table" id="hospitalsTable">
+                    <thead>
+                        <tr>
+                            <th>Hospital ID</th>
+                            <th>Hospital Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-hospital-id="H001" data-hospital-name="City General Hospital" data-hospital-phone="(555) 123-4567" data-hospital-email="info@citygeneral.com" data-hospital-address="123 Main St, New York, NY 10001">
+                            <td>H001</td>
+                            <td>City General Hospital</td>
+                            <td>(555) 123-4567</td>
+                            <td>info@citygeneral.com</td>
+                            <td>123 Main St, New York, NY 10001</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-hospital-id="H002" data-hospital-name="St. Mary's Medical Center" data-hospital-phone="(555) 234-5678" data-hospital-email="contact@stmarys.org" data-hospital-address="456 Oak Ave, Los Angeles, CA 90210">
+                            <td>H002</td>
+                            <td>St. Mary's Medical Center</td>
+                            <td>(555) 234-5678</td>
+                            <td>contact@stmarys.org</td>
+                            <td>456 Oak Ave, Los Angeles, CA 90210</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-hospital-id="H003" data-hospital-name="Memorial Hospital" data-hospital-phone="(555) 345-6789" data-hospital-email="admin@memorial.com" data-hospital-address="789 Pine St, Chicago, IL 60601">
+                            <td>H003</td>
+                            <td>Memorial Hospital</td>
+                            <td>(555) 345-6789</td>
+                            <td>admin@memorial.com</td>
+                            <td>789 Pine St, Chicago, IL 60601</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-hospital-id="H004" data-hospital-name="University Medical Center" data-hospital-phone="(555) 456-7890" data-hospital-email="info@umc.edu" data-hospital-address="321 University Blvd, Houston, TX 77001">
+                            <td>H004</td>
+                            <td>University Medical Center</td>
+                            <td>(555) 456-7890</td>
+                            <td>info@umc.edu</td>
+                            <td>321 University Blvd, Houston, TX 77001</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-hospital-id="H005" data-hospital-name="Children's Hospital" data-hospital-phone="(555) 567-8901" data-hospital-email="care@childrens.org" data-hospital-address="654 Pediatric Way, Boston, MA 02101">
+                            <td>H005</td>
+                            <td>Children's Hospital</td>
+                            <td>(555) 567-8901</td>
+                            <td>care@childrens.org</td>
+                            <td>654 Pediatric Way, Boston, MA 02101</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr data-hospital-id="H006" data-hospital-name="Regional Medical Center" data-hospital-phone="(555) 678-9012" data-hospital-email="info@regional.com" data-hospital-address="987 Health Plaza, Miami, FL 33101">
+                            <td>H006</td>
+                            <td>Regional Medical Center</td>
+                            <td>(555) 678-9012</td>
+                            <td>info@regional.com</td>
+                            <td>987 Health Plaza, Miami, FL 33101</td>
+                            <td><span class="status pending">Pending Verification</span></td>
+                            <td>
+                                <button class="btn btn-small edit-btn">Edit</button>
+                                <button class="btn btn-small btn-secondary delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Hospital</h3>
+                <button class="close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editHospitalName">Hospital Name</label>
+                        <input type="text" id="editHospitalName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editHospitalPhone">Phone Number</label>
+                        <input type="tel" id="editHospitalPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editHospitalEmail">Email Address</label>
+                        <input type="email" id="editHospitalEmail">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editHospitalAddress">Address</label>
+                    <textarea id="editHospitalAddress" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Update Hospital</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content confirm-dialog">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button class="close" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <div class="icon">🗑️</div>
+            <p>Are you sure you want to delete this hospital?</p>
+            <p><strong id="deleteItemName"></strong></p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Aimal's & Friends Limited</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('hospitalForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('hospitalsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude actions column
+                    if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                row.style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterTable() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const cityFilter = document.getElementById('cityFilter').value;
+            const table = document.getElementById('hospitalsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let showRow = true;
+
+                // City filter (check address column)
+                if (cityFilter && cells[4] && showRow) {
+                    const address = cells[4].textContent.toLowerCase();
+                    const cityName = cityFilter.replace('-', ' ');
+                    if (!address.includes(cityName)) {
+                        showRow = false;
+                    }
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+
+        // Reset filters when search is cleared
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable(); // Reapply filters
+            }
+        });
+
+        // Global variables for edit/delete operations
+        let currentEditId = null;
+        let currentDeleteId = null;
+
+        // Initialize event listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all edit and delete buttons
+            attachButtonListeners();
+        });
+
+        // Attach event listeners to edit and delete buttons
+        function attachButtonListeners() {
+            // Edit buttons
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const id = row.dataset.hospitalId;
+                    const name = row.dataset.hospitalName;
+                    const phone = row.dataset.hospitalPhone;
+                    const email = row.dataset.hospitalEmail;
+                    const address = row.dataset.hospitalAddress;
+                    editHospital(id, name, phone, email, address);
+                });
+            });
+
+            // Delete buttons
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const id = row.dataset.hospitalId;
+                    const name = row.dataset.hospitalName;
+                    deleteHospital(id, name);
+                });
+            });
+        }
+
+        // Edit Hospital
+        function editHospital(id, name, phone, email, address) {
+            currentEditId = id;
+            document.getElementById('editHospitalName').value = name;
+            document.getElementById('editHospitalPhone').value = phone;
+            document.getElementById('editHospitalEmail').value = email;
+            document.getElementById('editHospitalAddress').value = address;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Delete Hospital
+        function deleteHospital(id, name) {
+            currentDeleteId = id;
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Confirm Delete
+        function confirmDelete() {
+            if (currentDeleteId) {
+                // Find and remove the row
+                const table = document.getElementById('hospitalsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === currentDeleteId) {
+                        rows[i].remove();
+                        break;
+                    }
+                }
+
+                showMessage('Hospital deleted successfully!', 'success');
+                closeModal('deleteModal');
+                currentDeleteId = null;
+            }
+        }
+
+        // Handle Edit Form Submission
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (currentEditId) {
+                const newName = document.getElementById('editHospitalName').value;
+                const newPhone = document.getElementById('editHospitalPhone').value;
+                const newEmail = document.getElementById('editHospitalEmail').value;
+                const newAddress = document.getElementById('editHospitalAddress').value;
+
+                // Find and update the row
+                const table = document.getElementById('hospitalsTable');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    const cells = row.getElementsByTagName('td');
+                    if (cells[0] && cells[0].textContent === currentEditId) {
+                        // Update hospital data in table cells
+                        cells[1].textContent = newName;
+                        cells[2].textContent = newPhone;
+                        cells[3].textContent = newEmail;
+                        cells[4].textContent = newAddress;
+
+                        // Update data attributes
+                        row.dataset.hospitalName = newName;
+                        row.dataset.hospitalPhone = newPhone;
+                        row.dataset.hospitalEmail = newEmail;
+                        row.dataset.hospitalAddress = newAddress;
+
+                        break;
+                    }
+                }
+
+                showMessage('Hospital updated successfully!', 'success');
+                closeModal('editModal');
+                currentEditId = null;
+            }
+        });
+
+        // Show success/error messages
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1001;
+                background: ${type === 'success' ? '#059669' : '#dc2626'};
+            `;
+
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                if (document.body.contains(messageDiv)) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('mobile-open');
+        }
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navMenu').classList.remove('mobile-open');
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const deleteModal = document.getElementById('deleteModal');
+
+            if (event.target === editModal) {
+                closeModal('editModal');
+            }
+            if (event.target === deleteModal) {
+                closeModal('deleteModal');
+            }
+        }
+    </script>
+</body>
+</html>
